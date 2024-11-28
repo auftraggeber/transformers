@@ -445,7 +445,14 @@ class DetrSinePositionEmbedding(nn.Module):
         pos_x = torch.stack((pos_x[:, :, :, 0::2].sin(), pos_x[:, :, :, 1::2].cos()), dim=4).flatten(3)
         pos_y = torch.stack((pos_y[:, :, :, 0::2].sin(), pos_y[:, :, :, 1::2].cos()), dim=4).flatten(3)
         pos = torch.cat((pos_y, pos_x), dim=3).permute(0, 3, 1, 2)
-        torch.save(pos, "/content/position_embedding" + str(uuid.uuid4()) + ".pt")
+
+        id = str(uuid.uuid4())
+        torch.save(pos, "/content/position_embedding_" + id + ".pt")
+
+        with open("/content/raw_position_embedding_" + id, 'w') as raw_file:
+            for line in pos.tolist():
+                raw_file.write(f'{line}\n')
+
         return pos
 
 
