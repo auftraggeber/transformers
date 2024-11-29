@@ -434,6 +434,7 @@ class DetrSinePositionEmbedding(nn.Module):
             raise ValueError("No pixel mask provided")
 
         traceback.print_stack()
+        print("Pixelmask: " + str(pixel_mask.shape))
 
         y_embed = pixel_mask.cumsum(1, dtype=torch.float32)
         x_embed = pixel_mask.cumsum(2, dtype=torch.float32)
