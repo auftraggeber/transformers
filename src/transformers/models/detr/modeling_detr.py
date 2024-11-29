@@ -15,6 +15,7 @@
 """PyTorch DETR model."""
 
 import math
+import traceback
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -431,6 +432,9 @@ class DetrSinePositionEmbedding(nn.Module):
     def forward(self, pixel_values, pixel_mask):
         if pixel_mask is None:
             raise ValueError("No pixel mask provided")
+
+        traceback.print_stack()
+
         y_embed = pixel_mask.cumsum(1, dtype=torch.float32)
         x_embed = pixel_mask.cumsum(2, dtype=torch.float32)
         if self.normalize:
