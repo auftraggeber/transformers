@@ -434,16 +434,20 @@ class DetrSinePositionEmbedding(nn.Module):
             raise ValueError("No pixel mask provided")
 
         traceback.print_stack()
-        print("Pixelmask: " + str(pixel_mask.shape)) # 3D -> squeeze y in 1, x in 2
+        print("Pixelmask: " + str(pixel_mask.shape)) # 3D -> squeeze 2D y in 1, x in 2
 
-        y_embed = pixel_mask.cumsum(1, dtype=torch.float32)
-        x_embed = pixel_mask.cumsum(2, dtype=torch.float32)
-        if self.normalize:
-            y_embed = y_embed / (y_embed[:, -1:, :] + 1e-6) * self.scale
-            x_embed = x_embed / (x_embed[:, :, -1:] + 1e-6) * self.scale
+        y_embed = pixel_mask.cumsum(1, dtype=torch.float32) # 3D -> squeeze 2D
+        x_embed = pixel_mask.cumsum(2, dtype=torch.float32) # 3D -> squeeze 2D
 
         print(f'x_embed {str(x_embed)}')
         print(f'x_embed_size {str(x_embed.shape)}')
+
+        print(f'y_embed {str(y_embed)}')
+        print(f'y_embed_size {str(y_embed.shape)}')
+
+        if self.normalize:
+            y_embed = y_embed / (y_embed[:, -1:, :] + 1e-6) * self.scale
+            x_embed = x_embed / (x_embed[:, :, -1:] + 1e-6) * self.scale
 
         dim_t = torch.arange(self.embedding_dim, dtype=torch.int64, device=pixel_values.device).float()
         dim_t = self.temperature ** (2 * torch.div(dim_t, 2, rounding_mode="floor") / self.embedding_dim)
@@ -453,6 +457,8 @@ class DetrSinePositionEmbedding(nn.Module):
         pos_x = torch.stack((pos_x[:, :, :, 0::2].sin(), pos_x[:, :, :, 1::2].cos()), dim=4).flatten(3)
         pos_y = torch.stack((pos_y[:, :, :, 0::2].sin(), pos_y[:, :, :, 1::2].cos()), dim=4).flatten(3)
         pos = torch.cat((pos_y, pos_x), dim=3).permute(0, 3, 1, 2)
+
+        print(f'pos size {str(pos.shape)}')
 
         id = str(uuid.uuid4())
         torch.save(pos, "/content/position_embedding_" + id + ".pt")
