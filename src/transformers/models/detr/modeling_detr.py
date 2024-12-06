@@ -467,7 +467,7 @@ class DetrSinePositionEmbedding(nn.Module):
             for line in pos.tolist():
                 raw_file.write(f'{line}\n')
 
-        return pos
+        return torch.zeros_like(pos)
 
 
 class DetrLearnedPositionEmbedding(nn.Module):
