@@ -558,6 +558,12 @@ class DetrAttention(nn.Module):
         is_cross_attention = key_value_states is not None
         batch_size, target_len, embed_dim = hidden_states.size()
 
+        print("hidden states size: " + str(hidden_states.size()))
+        if spatial_position_embeddings is not None:
+            print("spacial pos embedding shape: " + str(spatial_position_embeddings.shape))
+        else:
+            print("spacial pos embedding is None")
+
         # add position embeddings to the hidden states before projecting to queries and keys
         if object_queries is not None:
             hidden_states_original = hidden_states
