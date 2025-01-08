@@ -578,6 +578,7 @@ class DetrAttention(nn.Module):
 
         # get query proj
         query_states = self.q_proj(hidden_states) * self.scaling
+        print("query_states shape: " + query_states.shape)
         # get key, value proj
         if is_cross_attention:
             # cross_attentions
