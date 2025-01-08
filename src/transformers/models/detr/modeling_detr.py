@@ -14,6 +14,7 @@
 # limitations under the License.
 """PyTorch DETR model."""
 
+import os
 import uuid
 import math
 import traceback
@@ -556,6 +557,9 @@ class DetrAttention(nn.Module):
         """Input shape: Batch x Time x Channel"""
         # if key_value_states are provided this layer is used as a cross-attention layer
         # for the decoder
+
+        id = str(uuid.uuid4)
+
         is_cross_attention = key_value_states is not None
         batch_size, target_len, embed_dim = hidden_states.size()
 
@@ -580,11 +584,6 @@ class DetrAttention(nn.Module):
         # get query proj
         query_states = self.q_proj(hidden_states) * self.scaling
 
-        id = uuid.uuid4
-
-        print("query_states shape: " + str(query_states.shape))
-        print(query_states)
-        torch.save(query_states, "/content/")
         # get key, value proj
         if is_cross_attention:
             # cross_attentions
@@ -599,6 +598,15 @@ class DetrAttention(nn.Module):
         query_states = self._shape(query_states, target_len, batch_size).view(*proj_shape)
         key_states = key_states.view(*proj_shape)
         value_states = value_states.view(*proj_shape)
+
+        if is_cross_attention == False:
+            os.mkdir("/content/" + id)
+
+            print("query_states shape: " + str(query_states.shape))
+            print(query_states)
+            torch.save(query_states, "/content/" + id + "/query_states")
+            torch.save(key_states, "/content/" + id + "/key_states")
+            torch.save(value_states, "/content/" + id + "/value_states")
 
         source_len = key_states.size(1)
 
