@@ -584,6 +584,7 @@ class DetrAttention(nn.Module):
 
         # get query proj
         query_states = self.q_proj(hidden_states) * self.scaling
+        debug_query_states = query_states
 
         # get key, value proj
         if is_cross_attention:
@@ -592,6 +593,8 @@ class DetrAttention(nn.Module):
             value_states = self._shape(self.v_proj(key_value_states_original), -1, batch_size)
         else:
             # self_attention
+            debug_key_states = self.k_proj(hidden_states)
+            debug_value_states = self.v_proj(hidden_states_original)
             key_states = self._shape(self.k_proj(hidden_states), -1, batch_size)
             value_states = self._shape(self.v_proj(hidden_states_original), -1, batch_size)
 
@@ -603,7 +606,7 @@ class DetrAttention(nn.Module):
         source_len = key_states.size(1)
 
         attn_weights = torch.bmm(query_states, key_states.transpose(1, 2))
-        query_times_key = attn_weights
+        debug_query_times_key = attn_weights
 
         if attn_weights.size() != (batch_size * self.num_heads, target_len, source_len):
             raise ValueError(
@@ -655,11 +658,11 @@ class DetrAttention(nn.Module):
 
             print("query_states shape: " + str(query_states.shape))
             print(query_states)
-            torch.save(query_states, "/content/" + id + "/query_states")
-            torch.save(key_states, "/content/" + id + "/key_states")
-            torch.save(value_states, "/content/" + id + "/value_states")
+            torch.save(debug_query_states, "/content/" + id + "/query_states")
+            torch.save(debug_key_states, "/content/" + id + "/key_states")
+            torch.save(debug_value_states, "/content/" + id + "/value_states")
             torch.save(attn_output, "/content/" + id + "/attn_output")
-            torch.save(query_times_key, "/content/" + id + "/query_t_key")
+            torch.save(debug_query_times_key, "/content/" + id + "/query_t_key")
 
         return attn_output, attn_weights_reshaped
 
