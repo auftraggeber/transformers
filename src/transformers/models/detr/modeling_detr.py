@@ -14,6 +14,7 @@
 # limitations under the License.
 """PyTorch DETR model."""
 
+import uuid
 import math
 import traceback
 from dataclasses import dataclass
@@ -578,7 +579,12 @@ class DetrAttention(nn.Module):
 
         # get query proj
         query_states = self.q_proj(hidden_states) * self.scaling
+
+        id = uuid.uuid4
+
         print("query_states shape: " + str(query_states.shape))
+        print(query_states)
+        torch.save(query_states, "/content/")
         # get key, value proj
         if is_cross_attention:
             # cross_attentions
