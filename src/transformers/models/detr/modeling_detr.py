@@ -600,15 +600,6 @@ class DetrAttention(nn.Module):
         key_states = key_states.view(*proj_shape)
         value_states = value_states.view(*proj_shape)
 
-        if is_cross_attention == False:
-            os.mkdir("/content/" + id)
-
-            print("query_states shape: " + str(query_states.shape))
-            print(query_states)
-            torch.save(query_states, "/content/" + id + "/query_states")
-            torch.save(key_states, "/content/" + id + "/key_states")
-            torch.save(value_states, "/content/" + id + "/value_states")
-
         source_len = key_states.size(1)
 
         attn_weights = torch.bmm(query_states, key_states.transpose(1, 2))
