@@ -16,6 +16,7 @@
 
 import os
 import uuid
+import time
 import math
 import traceback
 from dataclasses import dataclass
@@ -558,7 +559,7 @@ class DetrAttention(nn.Module):
         # if key_value_states are provided this layer is used as a cross-attention layer
         # for the decoder
 
-        id = str(uuid.uuid4)
+        id = str(time.time()) + str(uuid.uuid4)
 
         is_cross_attention = key_value_states is not None
         batch_size, target_len, embed_dim = hidden_states.size()
@@ -611,6 +612,7 @@ class DetrAttention(nn.Module):
         source_len = key_states.size(1)
 
         attn_weights = torch.bmm(query_states, key_states.transpose(1, 2))
+        query_times_key = attn_weights
 
         if attn_weights.size() != (batch_size * self.num_heads, target_len, source_len):
             raise ValueError(
@@ -654,6 +656,19 @@ class DetrAttention(nn.Module):
         attn_output = attn_output.reshape(batch_size, target_len, embed_dim)
 
         attn_output = self.out_proj(attn_output)
+
+
+
+        if is_cross_attention == False:
+            os.mkdir("/content/" + id)
+
+            print("query_states shape: " + str(query_states.shape))
+            print(query_states)
+            torch.save(query_states, "/content/" + id + "/query_states")
+            torch.save(key_states, "/content/" + id + "/key_states")
+            torch.save(value_states, "/content/" + id + "/value_states")
+            torch.save(attn_output, "/content/" + id + "/attn_output")
+            torch.save(query_times_key, "/content/" + id + "/query_t_key")
 
         return attn_output, attn_weights_reshaped
 
